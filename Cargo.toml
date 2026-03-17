@@ -4,10 +4,16 @@ version = "0.1.0"
 edition = "2024"
 authors = ["Yuri <your.email@example.com>"]
 description = "A beautiful and simple CLI Pomodoro timer"
-repository = "https://github.com/over9000rpm/perle"
+repository = "https://github.com/yuricommits/perle"
 license = "MIT"
 keywords = ["pomodoro", "timer", "productivity", "cli"]
 categories = ["command-line-utilities"]
 
 
 [dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ratatui = "0.30.0"
+crossterm = "0.29.0"
+rodio = { version = "0.22.2", features = ["symphonia-mp3"] }
