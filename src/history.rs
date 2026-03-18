@@ -1,3 +1,4 @@
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::fs;
 
@@ -9,18 +10,20 @@ pub struct Session {
     pub completed: bool,
 }
 
-pub fn save_session(mut session: Session) {
-    let mut history = load_history();
+pub fn save_session(mut session: Session) -> Result<()> {
+    let mut history = load_history()?;
     session.id = history.len() as u32 + 1;
     history.push(session);
-    let json = serde_json::to_string_pretty(&history).unwrap();
-    fs::write("history.json", json).unwrap();
+    let json = serde_json::to_string_pretty(&history)?;
+    fs::write("history.json", json)?;
+    Ok(())
 }
 
-pub fn load_history() -> Vec<Session> {
+pub fn load_history() -> Result<Vec<Session>> {
     match fs::read_to_string("history.json") {
-        Ok(contents) => serde_json::from_str(&contents).unwrap_or_default(),
-        Err(_) => Vec::new(),
+        Ok(contents) => Ok(serde_json::from_str(&contents)?),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(Vec::new()),
+        Err(e) => Err(e.into()),
     }
 }
 
@@ -91,7 +94,7 @@ mod tests {
     fn test_load_history_returns_empty_when_no_file() {
         std::fs::remove_file("history.json").ok(); // delete if exists, ignore error if not
         assert!(!Path::new("history.json").exists()); // verify it's gone
-        let history = load_history();
+        let history = load_history().unwrap(); // acceptable in tests
         assert!(history.is_empty());
     }
 

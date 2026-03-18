@@ -63,13 +63,17 @@ impl Timer {
                 std::process::exit(0);
             }
         }
-        crate::history::save_session(crate::history::Session {
-            id: 0, // will be set by save_session based on history length
+        if let Err(e) = crate::history::save_session(crate::history::Session {
+            id: 0,
             session_type: String::from(label),
             duration_mins: (self.duration_secs + 59) / 60,
             completed: true,
-        });
-        crate::sound::play_notification();
+        }) {
+            eprintln!("Failed to save session: {e}");
+        }
+        if let Err(e) = crate::sound::play_notification() {
+            eprintln!("Sound error: {e}");
+        }
         disable_raw_mode()?;
         execute!(stdout(), LeaveAlternateScreen)?;
         Ok(())

@@ -1,4 +1,5 @@
 mod config;
+mod error;
 mod history;
 mod sound;
 mod timer;
@@ -29,7 +30,7 @@ fn parse_command(input: &str) -> Option<Command> {
     }
 }
 
-async fn handle_command(cmd: Command) {
+async fn handle_command(cmd: Command) -> crate::error::Result<()> {
     match cmd {
         Command::Start => {
             let mut config = crate::config::load_config();
@@ -39,9 +40,9 @@ async fn handle_command(cmd: Command) {
                 "Work duration: {} mins (enter to keep): ",
                 config.work_duration_mins
             );
-            io::stdout().flush().unwrap();
+            io::stdout().flush()?;
             let mut input = String::new();
-            io::stdin().read_line(&mut input).unwrap();
+            io::stdin().read_line(&mut input)?;
             let trimmed = input.trim();
             if !trimmed.is_empty() {
                 config.work_duration_mins =
@@ -53,21 +54,23 @@ async fn handle_command(cmd: Command) {
                 "Break duration: {} mins (enter to keep): ",
                 config.break_duration_mins
             );
-            io::stdout().flush().unwrap();
+            io::stdout().flush()?;
             let mut input = String::new(); // fresh input variable
-            io::stdin().read_line(&mut input).unwrap();
+            io::stdin().read_line(&mut input)?;
             let trimmed = input.trim();
             if !trimmed.is_empty() {
                 config.break_duration_mins =
                     trimmed.parse::<u64>().unwrap_or(config.break_duration_mins);
             }
 
-            crate::config::save_config(&config);
+            if let Err(e) = crate::config::save_config(&config) {
+                eprintln!("Failed to save config: {e}");
+            }
 
             print!("Sessions? (default: 4): ");
-            io::stdout().flush().unwrap();
+            io::stdout().flush()?;
             let mut input = String::new();
-            io::stdin().read_line(&mut input).unwrap();
+            io::stdin().read_line(&mut input)?;
             let sessions = input.trim().parse::<u32>().unwrap_or(4);
 
             for i in 1..=sessions {
@@ -75,19 +78,25 @@ async fn handle_command(cmd: Command) {
 
                 // work timer
                 let timer = Timer::new(config.work_duration_mins * 60, SessionType::Work);
-                timer.run().await.unwrap();
+                if let Err(e) = timer.run().await {
+                    eprintln!("Timer error: {e}");
+                    break; // stop the session loop if timer fails
+                }
 
                 // break timer - skip on last session
                 if i < sessions {
                     let brk = Timer::new(config.break_duration_mins * 60, SessionType::Break);
-                    brk.run().await.unwrap();
+                    if let Err(e) = brk.run().await {
+                        eprintln!("Timer error: {e}");
+                        break;
+                    }
                 }
             }
             println!("Done!");
         }
 
         Command::History => {
-            let sessions = crate::history::load_history();
+            let sessions = crate::history::load_history().unwrap_or_default();
             if sessions.is_empty() {
                 println!("No history yet!");
             } else {
@@ -97,10 +106,11 @@ async fn handle_command(cmd: Command) {
 
         Command::Quit => unreachable!(),
     }
+    Ok(())
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> crate::error::Result<()> {
     println!("Welcome to Perle!");
     println!("[s] Start");
     println!("[h] History");
@@ -108,17 +118,19 @@ async fn main() {
 
     loop {
         print!("> ");
-        io::stdout().flush().unwrap();
+        io::stdout().flush()?;
 
         let mut input = String::new();
-        io::stdin().read_line(&mut input).unwrap();
+        io::stdin().read_line(&mut input)?;
 
         match parse_command(&input) {
             Some(Command::Quit) => {
                 break;
             }
             Some(cmd) => {
-                handle_command(cmd).await;
+                if let Err(e) = handle_command(cmd).await {
+                    eprintln!("Error: {e}");
+                }
             }
             None => {
                 if !input.trim().is_empty() {
@@ -127,4 +139,5 @@ async fn main() {
             }
         }
     }
+    Ok(())
 }
