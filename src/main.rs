@@ -1,3 +1,4 @@
+mod config;
 mod history;
 mod sound;
 mod timer;
@@ -14,6 +15,9 @@ enum Command {
 
 fn parse_command(input: &str) -> Option<Command> {
     let parts = input.trim().to_lowercase();
+    if parts.is_empty() {
+        return None;
+    } // skip empty lines silently
     let mut parts = parts.splitn(2, ' ');
     let cmd = parts.next().unwrap_or("");
 
@@ -28,9 +32,40 @@ fn parse_command(input: &str) -> Option<Command> {
 async fn handle_command(cmd: Command) {
     match cmd {
         Command::Start => {
-            println!("Sessions? (default: 4): ");
-            io::stdout().flush().unwrap();
+            let mut config = crate::config::load_config();
 
+            // read work duration
+            print!(
+                "Work duration: {} mins (enter to keep): ",
+                config.work_duration_mins
+            );
+            io::stdout().flush().unwrap();
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).unwrap();
+            let trimmed = input.trim();
+            if !trimmed.is_empty() {
+                config.work_duration_mins =
+                    trimmed.parse::<u64>().unwrap_or(config.work_duration_mins);
+            }
+
+            // read break duration
+            print!(
+                "Break duration: {} mins (enter to keep): ",
+                config.break_duration_mins
+            );
+            io::stdout().flush().unwrap();
+            let mut input = String::new(); // fresh input variable
+            io::stdin().read_line(&mut input).unwrap();
+            let trimmed = input.trim();
+            if !trimmed.is_empty() {
+                config.break_duration_mins =
+                    trimmed.parse::<u64>().unwrap_or(config.break_duration_mins);
+            }
+
+            crate::config::save_config(&config);
+
+            print!("Sessions? (default: 4): ");
+            io::stdout().flush().unwrap();
             let mut input = String::new();
             io::stdin().read_line(&mut input).unwrap();
             let sessions = input.trim().parse::<u32>().unwrap_or(4);
@@ -39,12 +74,12 @@ async fn handle_command(cmd: Command) {
                 println!("\nSession {}/{}", i, sessions);
 
                 // work timer
-                let timer = Timer::new(5, SessionType::Work);
+                let timer = Timer::new(config.work_duration_mins * 60, SessionType::Work);
                 timer.run().await.unwrap();
 
                 // break timer - skip on last session
                 if i < sessions {
-                    let brk = Timer::new(3, SessionType::Break);
+                    let brk = Timer::new(config.break_duration_mins * 60, SessionType::Break);
                     brk.run().await.unwrap();
                 }
             }
@@ -85,7 +120,11 @@ async fn main() {
             Some(cmd) => {
                 handle_command(cmd).await;
             }
-            None => println!("Unknown command. Try: s(tart), h(istory), q(uit)"),
+            None => {
+                if !input.trim().is_empty() {
+                    println!("Unknown command. Try: s(tart), h(istory), q(uit)");
+                }
+            }
         }
     }
 }
