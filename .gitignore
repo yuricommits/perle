@@ -26,3 +26,4 @@ rust-toolchain
 /target
 >>>>>>> 389a5b0 (Initial commit)
 history.json
+config.json
