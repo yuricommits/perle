@@ -1,9 +1,9 @@
-# 🍅 Perle
+# Perle
 
 A beautiful, minimal Pomodoro timer for the terminal — built in Rust.
 
 ```
-────────────────── 🍅 Perle ──────────────────
+───────────────────── Perle ──────────────────
                                                
                   Work Session                       
                                                
