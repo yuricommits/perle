@@ -89,7 +89,7 @@ pub fn draw(frame: &mut Frame, label: &str, remaining: u64, total: u64) {
 
     let outer = Block::default()
         .borders(Borders::ALL)
-        .title(" 🍅 Perle ")
+        .title(" Perle ")
         .title_alignment(Alignment::Center);
 
     let inner = outer.inner(centered);
