@@ -71,9 +71,9 @@ fn centered_rect(percent_x: u16, percent_y: u16, area: Rect) -> Rect {
 
 pub fn draw(frame: &mut Frame, label: &str, remaining: u64, total: u64) {
     let color = if label == "Work" {
-        Color::Green
+        Color::White
     } else {
-        Color::Blue
+        Color::Gray
     };
 
     let title = Line::from(vec![Span::styled(
