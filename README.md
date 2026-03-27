@@ -1,6 +1,6 @@
 # Perle
 
-A beautiful, minimal Pomodoro timer for the terminal — built in Rust.
+A beautiful, minimal Pomodoro timer for the terminal - built in Rust.
 
 ```
 ───────────────────── Perle ──────────────────
@@ -21,20 +21,20 @@ A beautiful, minimal Pomodoro timer for the terminal — built in Rust.
 
 ## Features
 
-- **ASCII clock** — large, readable countdown display
-- **Work & break sessions** — automatic cycling with configurable durations
-- **Progress bar** — visual TUI powered by ratatui
-- **Sound notification** — audio alert when each session ends
-- **Session history** — persistent JSON storage with stats
-- **Custom configuration** — set your own work/break durations, saved between runs
-- **Graceful Ctrl+C** — clean terminal exit, no broken state
-- **Proper error handling** — no panicking `unwrap()` in production code
+- **ASCII clock** - large, readable countdown display
+- **Work & break sessions** - automatic cycling with configurable durations
+- **Progress bar** - visual TUI powered by ratatui
+- **Sound notification** - audio alert when each session ends
+- **Session history** - persistent JSON storage with stats
+- **Custom configuration** - set your own work/break durations, saved between runs
+- **Graceful Ctrl+C** - clean terminal exit, no broken state
+- **Proper error handling** - no panicking `unwrap()` in production code
 
 ## Installation
 
 ### Prerequisites
 
-- Rust (stable) — install via [rustup.rs](https://rustup.rs)
+- Rust (stable) - install via [rustup.rs](https://rustup.rs)
 - Linux: `sudo apt install pkg-config libasound2-dev`
 
 ### Build from source
@@ -104,21 +104,21 @@ On first run, Perle creates `config.json` with defaults:
 }
 ```
 
-You can change these each time you start a session — changes are saved automatically.
+You can change these each time you start a session - changes are saved automatically.
 
 ## Project Structure
 
 ```
 src/
-├── main.rs       — menu loop, command parsing
-├── timer.rs      — async countdown, TUI integration
-├── ui.rs         — ratatui ASCII clock & progress bar
-├── sound.rs      — audio notification
-├── history.rs    — session persistence & stats
-├── config.rs     — user configuration
-└── error.rs      — custom error types
+├── main.rs       - menu loop, command parsing
+├── timer.rs      - async countdown, TUI integration
+├── ui.rs         - ratatui ASCII clock & progress bar
+├── sound.rs      - audio notification
+├── history.rs    - session persistence & stats
+├── config.rs     - user configuration
+└── error.rs      - custom error types
 assets/
-└── beep.mp3      — notification sound
+└── beep.mp3      - notification sound
 ```
 
 ## Tech Stack
