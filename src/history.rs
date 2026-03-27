@@ -27,7 +27,7 @@ pub fn load_history() -> Result<Vec<Session>> {
     }
 }
 
-pub fn print_stats(sessions: &Vec<Session>) {
+pub fn print_stats(sessions: &[Session]) {
     let total = sessions.len();
     let completed_count = sessions.iter().filter(|s| s.completed).count();
     let total_focus_time: u64 = sessions

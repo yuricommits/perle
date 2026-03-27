@@ -66,7 +66,7 @@ impl Timer {
         if let Err(e) = crate::history::save_session(crate::history::Session {
             id: 0,
             session_type: String::from(label),
-            duration_mins: (self.duration_secs + 59) / 60,
+            duration_mins: self.duration_secs.div_ceil(60),
             completed: true,
         }) {
             eprintln!("Failed to save session: {e}");
