@@ -106,6 +106,15 @@ pub fn draw(frame: &mut Frame, label: &str, remaining: u64, total: u64) {
         ])
         .split(inner);
 
+    let gauge_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage(5),  // left padding
+            Constraint::Percentage(90), // gauge
+            Constraint::Percentage(5),  // right padding
+        ])
+        .split(chunks[3]);
+
     let mins = remaining / 60;
     let secs = remaining % 60;
 
@@ -123,5 +132,5 @@ pub fn draw(frame: &mut Frame, label: &str, remaining: u64, total: u64) {
 
     frame.render_widget(paragraph, chunks[1]); // title
     frame.render_widget(clock, chunks[2]); // clock
-    frame.render_widget(gauge, chunks[3]); // gauge
+    frame.render_widget(gauge, gauge_chunks[1]); // gauge
 }
